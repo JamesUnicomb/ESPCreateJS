@@ -3,9 +3,11 @@
 #include <FS.h>
 #include <ESP8266WiFi.h>
 
-//Set Wifi ssid and password
-char ssid[] = "wifiname";
-char pass[] = "wifipassword";
+//Setup wifi
+IPAddress local_IP(192,168,4,22);
+IPAddress gateway(192,168,4,9);
+IPAddress subnet(255,255,255,0);
+
 
 ESP8266WebServer server (80);
 
@@ -34,23 +36,15 @@ void setup()
   
   create.start(); // Starts the Create's OI
   create.fullMode(); // Sets the mode to be Full Mode
-  
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, pass);
+
+  // setup wifi access point
+  Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet) ? "Ready" : "Failed!");
+  Serial.println(WiFi.softAP("CreateAP") ? "Ready" : "Failed!");
+  Serial.print("Soft-AP IP address = ");
+  Serial.println(WiFi.softAPIP());
   
   // Debug console
   Serial.begin(115200);
-  
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.println("WiFi connected");  
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-  
   
   //initialize SPIFFS to be able to serve up the static HTML files. 
   if (!SPIFFS.begin()){
